@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menu — Sodam</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream:#F5EFE0; --beige:#E8D9C0; --beige-dark:#D4C0A1;
+    --brown:#7A5230; --brown-dark:#4A2E10;
+    --bordeaux:#6B2030; --bordeaux-light:#8B3A4A; --bordeaux-pale:#F0DDD8;
+    --text-dark:#2C1A0E; --text-light:#8B6040;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--cream);color:var(--text-dark);font-family:'Lato',sans-serif;font-weight:300;}
+
+  /* LANGUE OVERLAY */
+  #lang-overlay{position:fixed;inset:0;background:var(--brown-dark);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;}
+  #lang-overlay h1{font-family:'Playfair Display',serif;font-size:clamp(22px,5vw,38px);color:var(--cream);font-weight:400;letter-spacing:2px;text-align:center;}
+  #lang-overlay p{font-size:13px;color:var(--beige-dark);letter-spacing:3px;text-align:center;opacity:0.7;}
+  .lang-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:min(320px,80vw);}
+  .lang-btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:18px 12px;cursor:pointer;text-align:center;transition:background 0.2s,border 0.2s;}
+  .lang-btn:hover{background:rgba(255,255,255,0.18);border-color:rgba(255,255,255,0.35);}
+  .lang-btn .flag{font-size:28px;display:block;margin-bottom:8px;}
+  .lang-btn .lang-name{font-family:'Playfair Display',serif;font-size:16px;color:var(--cream);font-weight:600;display:block;}
+  .lang-btn .lang-native{font-size:12px;color:var(--beige-dark);opacity:0.7;display:block;margin-top:2px;}
+
+  /* HEADER */
+  .header{background:var(--brown-dark);padding:36px 24px 24px;text-align:center;position:relative;overflow:hidden;}
+  .header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(107,32,48,0.4) 0%,transparent 60%),radial-gradient(ellipse at 80% 50%,rgba(107,32,48,0.3) 0%,transparent 60%);pointer-events:none;}
+  .header-ornament{font-family:'Playfair Display',serif;font-size:12px;color:var(--beige-dark);letter-spacing:6px;text-transform:uppercase;margin-bottom:10px;opacity:0.7;position:relative;}
+  .header h1{font-family:'Playfair Display',serif;font-size:clamp(24px,6vw,42px);color:var(--cream);font-weight:400;letter-spacing:2px;margin-bottom:5px;position:relative;}
+  .header-sub{font-size:12px;color:var(--beige-dark);letter-spacing:3px;text-transform:uppercase;opacity:0.6;position:relative;}
+  .header-line{width:50px;height:1px;background:var(--bordeaux-light);margin:14px auto;}
+  #timestamp{font-size:12px;color:var(--beige-dark);letter-spacing:3px;opacity:0.7;display:block;margin-bottom:6px;position:relative;}
+  #menu-badge{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cream);padding:4px 16px;border-radius:20px;display:inline-block;position:relative;}
+
+  /* LANG SWITCHER dans header */
+  .lang-switcher{display:flex;gap:6px;justify-content:center;margin-top:12px;position:relative;}
+  .lang-switch-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:11px;font-weight:700;color:var(--beige-dark);letter-spacing:1px;transition:background 0.2s;}
+  .lang-switch-btn:hover,.lang-switch-btn.active{background:rgba(255,255,255,0.25);color:var(--cream);}
+
+  /* NAV */
+  .nav-scroll{background:var(--brown);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:sticky;top:0;z-index:100;}
+  .nav-scroll::-webkit-scrollbar{display:none;}
+  .nav-inner{display:flex;min-width:max-content;padding:0 12px;}
+  .nav-btn{padding:12px 14px;font-family:'Lato',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--beige-dark);background:none;border:none;cursor:pointer;white-space:nowrap;opacity:0.7;transition:color 0.2s,background 0.2s;}
+  .nav-btn:hover,.nav-btn.active{color:var(--cream);opacity:1;background:rgba(255,255,255,0.08);}
+
+  /* MAIN */
+  .main{max-width:780px;margin:0 auto;padding:0 16px 60px;}
+  .section{padding-top:42px;}
+  .section-header{display:flex;align-items:center;gap:14px;margin-bottom:8px;}
+  .section-icon{width:40px;height:40px;border-radius:50%;background:var(--bordeaux);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+  .section-title{font-family:'Playfair Display',serif;font-size:clamp(18px,4vw,24px);color:var(--brown-dark);font-weight:600;}
+  .section-sub{font-size:11px;color:var(--text-light);letter-spacing:1px;margin-left:54px;margin-bottom:16px;font-style:italic;}
+  .section-divider{height:1px;background:linear-gradient(to right,var(--bordeaux),var(--beige-dark),transparent);margin-bottom:18px;}
+  .subsection-title{font-family:'Playfair Display',serif;font-size:14px;color:var(--bordeaux);margin-bottom:10px;font-style:italic;}
+
+  /* ITEM CARDS */
+  .items-grid{display:grid;gap:8px;}
+  .item-card{background:#fff;border-radius:10px;border:1px solid var(--beige);display:flex;align-items:center;overflow:hidden;transition:transform 0.15s,box-shadow 0.15s;}
+  .item-card:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(74,46,16,0.1);}
+  .item-photo{width:72px;height:72px;object-fit:cover;flex-shrink:0;}
+  .item-info{flex:1;min-width:0;padding:9px 12px;}
+  .item-code{font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--bordeaux);text-transform:uppercase;margin-bottom:2px;}
+  .item-name{font-family:'Playfair Display',serif;font-size:14px;color:var(--text-dark);font-weight:600;line-height:1.3;}
+  .item-note{font-size:11px;color:var(--bordeaux-light);margin-top:2px;font-style:italic;}
+  .item-trans{font-size:11px;color:var(--text-light);margin-top:2px;line-height:1.4;}
+  .item-price{font-family:'Playfair Display',serif;font-size:15px;color:var(--bordeaux);font-weight:600;white-space:nowrap;flex-shrink:0;padding-right:12px;text-align:right;}
+
+  /* RAGOÛT PRIX */
+  .ragout-prices{display:flex;flex-direction:column;align-items:flex-end;gap:2px;padding-right:12px;flex-shrink:0;}
+  .rp-amount{font-family:'Playfair Display',serif;font-size:14px;color:var(--bordeaux);font-weight:600;white-space:nowrap;}
+  .rp-label{font-size:10px;color:var(--text-light);}
+  .rp-sep{width:26px;height:1px;background:var(--beige);margin:3px 0 3px auto;}
+
+  /* BOISSONS */
+  .drinks-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:8px;}
+  .drink-card{background:#fff;border-radius:10px;border:1px solid var(--beige);overflow:hidden;transition:transform 0.15s;}
+  .drink-card:hover{transform:translateY(-1px);}
+  .drink-photo{width:100%;height:82px;object-fit:cover;}
+  .drink-body{padding:8px 10px;text-align:center;}
+  .drink-emoji{font-size:22px;margin-bottom:3px;display:block;}
+  .drink-name{font-family:'Playfair Display',serif;font-size:12px;color:var(--text-dark);font-weight:600;margin-bottom:2px;line-height:1.3;}
+  .drink-trans{font-size:10px;color:var(--text-light);margin-bottom:4px;line-height:1.3;}
+  .drink-price{font-size:13px;font-weight:700;color:var(--bordeaux);}
+
+  /* VINS */
+  .wines-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .wine-card{background:#fff;border-radius:10px;border:1px solid var(--beige);padding:12px 14px;}
+  .wine-tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:4px;margin-bottom:5px;}
+  .wine-tag.rouge{background:#f0ddd8;color:var(--bordeaux);}
+  .wine-tag.rose{background:#fce8e8;color:#b03060;}
+  .wine-tag.blanc{background:#f5f0e0;color:#7a6020;}
+  .wine-name{font-family:'Playfair Display',serif;font-size:13px;color:var(--text-dark);font-weight:600;margin-bottom:6px;}
+  .wine-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;}
+  .wine-label{font-size:11px;color:var(--text-light);font-style:italic;}
+  .wine-val{font-family:'Playfair Display',serif;font-size:13px;color:var(--bordeaux);font-weight:600;}
+
+  /* MENUS CARDS */
+  .menu-card{background:#fff;border-radius:12px;border:1px solid var(--beige);overflow:hidden;margin-bottom:16px;}
+  .menu-card-header{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;}
+  .menu-card-header.midi{background:var(--brown-dark);}
+  .menu-card-header.soir{background:var(--bordeaux);}
+  .menu-card-title{font-family:'Playfair Display',serif;font-size:18px;color:var(--cream);font-weight:600;}
+  .menu-card-sub{font-size:10px;color:rgba(255,255,255,0.55);letter-spacing:2px;text-transform:uppercase;margin-top:3px;}
+  .menu-price-bubble{background:rgba(255,255,255,0.15);border-radius:50%;width:56px;height:56px;display:flex;align-items:center;justify-content:center;flex-direction:column;flex-shrink:0;}
+  .menu-price-bubble span{font-family:'Playfair Display',serif;font-size:16px;color:var(--cream);font-weight:600;line-height:1;}
+  .menu-price-bubble small{font-size:10px;color:rgba(255,255,255,0.7);}
+  .menu-card-body{padding:14px 18px;}
+  .menu-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--brown);margin-bottom:6px;margin-top:12px;}
+  .menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:4px;}
+  .menu-item{font-size:12px;color:var(--text-dark);padding:5px 8px;background:var(--cream);border-radius:6px;line-height:1.4;}
+  .menu-item small{color:var(--text-light);font-size:10px;display:block;margin-top:1px;}
+  .menu-note{font-size:11px;color:var(--text-light);font-style:italic;margin-top:4px;}
+  .menu-price-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px;}
+  .menu-price-box{background:var(--bordeaux-pale);border-radius:8px;padding:8px 12px;}
+  .menu-price-box .label{font-size:10px;font-weight:700;color:var(--bordeaux);letter-spacing:1px;margin-bottom:2px;}
+  .menu-price-box .amount{font-family:'Playfair Display',serif;font-size:19px;color:var(--bordeaux);font-weight:600;}
+  .menu-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .menu-col-title{font-size:11px;font-weight:700;color:var(--bordeaux);margin-bottom:5px;}
+  .menu-info-box{background:var(--cream);border-radius:8px;padding:8px 12px;font-size:11px;color:var(--text-light);font-style:italic;line-height:1.7;margin-top:10px;}
+
+  /* FOOTER */
+  .footer{background:var(--brown-dark);padding:26px 24px;text-align:center;margin-top:48px;}
+  .footer p{color:var(--beige-dark);font-size:12px;letter-spacing:2px;opacity:0.6;}
+
+  @media(max-width:480px){
+    .item-photo{width:60px;height:60px;}
+    .drinks-grid{grid-template-columns:repeat(auto-fill,minmax(128px,1fr));}
+    .wines-grid{grid-template-columns:1fr;}
+    .menu-grid{grid-template-columns:1fr;}
+    .menu-cols{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ SÉLECTEUR DE LANGUE ═══ -->
+<div id="lang-overlay">
+  <div>
+    <h1>Sodam</h1>
+    <p>한국 요리 · 韩国料理 · Korean Cuisine</p>
+  </div>
+  <div class="lang-grid">
+    <button class="lang-btn" onclick="setLang('fr')">
+      <span class="flag">🇫🇷</span>
+      <span class="lang-name">Français</span>
+      <span class="lang-native">French</span>
+    </button>
+    <button class="lang-btn" onclick="setLang('en')">
+      <span class="flag">🇬🇧</span>
+      <span class="lang-name">English</span>
+      <span class="lang-native">Anglais</span>
+    </button>
+    <button class="lang-btn" onclick="setLang('zh')">
+      <span class="flag">🇨🇳</span>
+      <span class="lang-name">中文</span>
+      <span class="lang-native">Chinois</span>
+    </button>
+    <button class="lang-btn" onclick="setLang('ko')">
+      <span class="flag">🇰🇷</span>
+      <span class="lang-name">한국어</span>
+      <span class="lang-native">Coréen</span>
+    </button>
+  </div>
+</div>
+
+<header class="header">
+  <p class="header-ornament">✦ Sodam ✦</p>
+  <h1 data-i18n="header-title">Notre Menu</h1>
+  <p class="header-sub">한국 요리 · Cuisine coréenne</p>
+  <div class="header-line"></div>
+  <span id="timestamp"></span>
+  <span id="menu-badge"></span>
+  <div class="lang-switcher">
+    <button class="lang-switch-btn" onclick="setLang('fr')">FR</button>
+    <button class="lang-switch-btn" onclick="setLang('en')">EN</button>
+    <button class="lang-switch-btn" onclick="setLang('zh')">中文</button>
+    <button class="lang-switch-btn" onclick="setLang('ko')">한국어</button>
+  </div>
+</header>
+
+<nav class="nav-scroll">
+  <div class="nav-inner">
+    <button class="nav-btn active" onclick="goTo('menus',this)" data-i18n="nav-menus">Menus</button>
+    <button class="nav-btn" onclick="goTo('entrees',this)" data-i18n="nav-entrees">Entrées</button>
+    <button class="nav-btn" onclick="goTo('bibimbap',this)">Bibimbap</button>
+    <button class="nav-btn" onclick="goTo('plaque',this)" data-i18n="nav-plaque">Plaque</button>
+    <button class="nav-btn" onclick="goTo('bbq',this)">Barbecue</button>
+    <button class="nav-btn" onclick="goTo('riz',this)" data-i18n="nav-riz">Riz sautés</button>
+    <button class="nav-btn" onclick="goTo('nouilles',this)" data-i18n="nav-nouilles">Nouilles</button>
+    <button class="nav-btn" onclick="goTo('soupes',this)" data-i18n="nav-soupes">Soupes</button>
+    <button class="nav-btn" onclick="goTo('ragouts',this)" data-i18n="nav-ragouts">Ragoûts</button>
+    <button class="nav-btn" onclick="goTo('desserts',this)" data-i18n="nav-desserts">Desserts</button>
+    <button class="nav-btn" onclick="goTo('boissons',this)" data-i18n="nav-boissons">Boissons</button>
+  </div>
+</nav>
+
+<main class="main">
+
+<!-- ═══ MENUS ═══ -->
+<section class="section" id="menus">
+  <div class="section-header"><div class="section-icon">🍱</div><h2 class="section-title" data-i18n="sec-menus">Nos Menus</h2></div>
+  <div class="section-divider"></div>
+
+  <!-- MENU MIDI -->
+  <div class="menu-card" id="menu-midi-card">
+    <div class="menu-card-header midi">
+      <div>
+        <div class="menu-card-title" data-i18n="midi-title">Menu Midi</div>
+        <div class="menu-card-sub" data-i18n="midi-sub">Lun – Ven · 11h–15h</div>
+      </div>
+      <div class="menu-price-bubble"><span>15,80</span><small>€</small></div>
+    </div>
+    <div class="menu-card-body">
+      <div style="font-family:'Playfair Display',serif;font-size:12px;color:var(--bordeaux);font-style:italic;margin-bottom:12px;" data-i18n="midi-desc">Bibimbap ou Plaque chauffante · Entrée au choix · Dessert au choix</div>
+
+      <div class="menu-label" data-i18n="label-entree">Entrée au choix</div>
+      <div class="menu-grid">
+        <div class="menu-item">A · <span data-i18n="m-salade">Salade</span></div>
+        <div class="menu-item">B · <span data-i18n="m-galette-haricot">Galette haricots mungo</span></div>
+        <div class="menu-item">C · <span data-i18n="m-mandoo">Mandoo raviolis grillés</span><small data-i18n="m-mandoo-note">poulet ou légumes · 3 pcs</small></div>
+        <div class="menu-item">D · <span data-i18n="m-ailes">Ailes de poulet</span><small data-i18n="m-ailes-note">aigre-douces, épicées ou nature · 3 pcs</small></div>
+      </div>
+
+      <div class="menu-label" data-i18n="label-plat">Plat au choix</div>
+      <div class="menu-cols">
+        <div>
+          <div class="menu-col-title">Bibimbap</div>
+          <div style="display:grid;gap:3px;">
+            <div class="menu-item">E · <span data-i18n="boeuf">Bœuf</span></div>
+            <div class="menu-item">F · <span data-i18n="poulet">Poulet</span> 🌶</div>
+            <div class="menu-item">G · <span data-i18n="porc">Porc</span> 🌶</div>
+            <div class="menu-item">H · <span data-i18n="poulet-frit">Poulet frit</span></div>
+            <div class="menu-item">I · <span data-i18n="tofu">Tofu</span></div>
+            <div class="menu-item">J · <span data-i18n="seiche">Seiche</span></div>
+            <div class="menu-item">K · <span data-i18n="legumes">Légumes</span></div>
+            <div class="menu-item">L · <span data-i18n="crevettes">Crevettes</span></div>
+          </div>
+          <div class="menu-note" data-i18n="bibimbap-note">Tous servis avec un œuf</div>
+        </div>
+        <div>
+          <div class="menu-col-title" data-i18n="nav-plaque">Plaque chauffante</div>
+          <div style="display:grid;gap:3px;">
+            <div class="menu-item">N · <span data-i18n="boeuf">Bœuf</span></div>
+            <div class="menu-item">O · <span data-i18n="porc">Porc</span> 🌶</div>
+            <div class="menu-item">P · <span data-i18n="poulet">Poulet</span> 🌶</div>
+            <div class="menu-item">Q · <span data-i18n="poitrine-seiche">Poitrine de porc & seiche</span> 🌶</div>
+            <div class="menu-item">R · <span data-i18n="seiche">Seiche</span> 🌶</div>
+          </div>
+          <div class="menu-note" data-i18n="banchan-note">Servis avec riz et banchan</div>
+        </div>
+      </div>
+
+      <div class="menu-label" data-i18n="label-dessert">Dessert au choix</div>
+      <div class="menu-grid">
+        <div class="menu-item" data-i18n="d-litchi">Fruits litchi</div>
+        <div class="menu-item" data-i18n="d-the-vert">Thé vert</div>
+        <div class="menu-item" data-i18n="d-the-jasmin">Thé au jasmin</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MENU SOIR -->
+  <div class="menu-card" id="menu-soir-card">
+    <div class="menu-card-header soir">
+      <div>
+        <div class="menu-card-title" data-i18n="soir-title">Menu Soir & Week-end</div>
+        <div class="menu-card-sub" data-i18n="soir-sub">Tous les jours · 18h–23h</div>
+      </div>
+    </div>
+    <div class="menu-card-body">
+      <div class="menu-price-row">
+        <div class="menu-price-box">
+          <div class="label" data-i18n="soir-2e">2 ENTRÉES + 1 PLAT</div>
+          <div class="amount">25 €</div>
+        </div>
+        <div class="menu-price-box">
+          <div class="label" data-i18n="soir-3e">3 ENTRÉES + 1 PLAT</div>
+          <div class="amount">26 €</div>
+        </div>
+      </div>
+
+      <div class="menu-label" data-i18n="label-entrees">Entrées au choix</div>
+      <div style="display:grid;gap:3px;margin-bottom:12px;">
+        <div class="menu-item"><span data-i18n="s-raviolis">3 pièces de raviolis grillés</span><small data-i18n="m-mandoo-note">poulet ou légumes</small></div>
+        <div class="menu-item" data-i18n="s-soupe-poireau">Soupe aux poireaux et bœuf pimenté</div>
+        <div class="menu-item"><span data-i18n="s-tofu">2 pièces de tofu grillés</span> <small data-i18n="veg" style="display:inline;font-size:10px;color:var(--text-light);">(végétarien)</small></div>
+        <div class="menu-item"><span data-i18n="s-galette">2 galettes aux haricots</span> <small data-i18n="veg" style="display:inline;font-size:10px;color:var(--text-light);">(végétarien)</small></div>
+        <div class="menu-item" data-i18n="s-ailes">2 pièces d'ailes de poulet</div>
+        <div class="menu-item"><span data-i18n="s-vermicelles">Vermicelles de patates douces</span> <small data-i18n="veg" style="display:inline;font-size:10px;color:var(--text-light);">(végétarien)</small></div>
+      </div>
+
+      <div class="menu-label" data-i18n="label-plat">Plat au choix</div>
+      <div class="menu-cols">
+        <div>
+          <div class="menu-col-title" data-i18n="nav-plaque">Plaque chauffante</div>
+          <div style="display:grid;gap:3px;">
+            <div class="menu-item" data-i18n="boeuf">Bœuf</div>
+            <div class="menu-item" data-i18n="porc">Porc</div>
+            <div class="menu-item" data-i18n="poulet">Poulet</div>
+          </div>
+          <div class="menu-col-title" style="margin-top:8px;" data-i18n="nav-soupes">Soupe</div>
+          <div style="display:grid;gap:3px;">
+            <div class="menu-item" data-i18n="g-raviolis">Soupe aux raviolis</div>
+            <div class="menu-item" data-i18n="g-tofu">Tofu jjigae</div>
+            <div class="menu-item" data-i18n="g-kimchi">Kimchi jjigae</div>
+            <div class="menu-item" data-i18n="g-boeuf-epice">Bœuf jjigae épicé</div>
+          </div>
+        </div>
+        <div>
+          <div class="menu-col-title">Bibimbap</div>
+          <div style="display:grid;gap:3px;">
+            <div class="menu-item" data-i18n="boeuf">Bœuf</div>
+            <div class="menu-item" data-i18n="poulet">Poulet</div>
+            <div class="menu-item" data-i18n="porc">Porc</div>
+            <div class="menu-item" data-i18n="poulet-frit">Poulet frit</div>
+            <div class="menu-item" data-i18n="legumes">Légumes</div>
+            <div class="menu-item" data-i18n="calamar">Calamar</div>
+            <div class="menu-item" data-i18n="crevettes">Crevettes</div>
+            <div class="menu-item"><span data-i18n="tofu">Tofu</span> <small data-i18n="veg" style="display:inline;font-size:10px;">(vég.)</small></div>
+          </div>
+        </div>
+      </div>
+      <div class="menu-info-box" data-i18n="soir-info">Tous les plats sont accompagnés de riz et de mets variés. Supplément à 4 € : petite entrée, riz ou mets variés. Œuf en supplément : 2 €</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ ENTRÉES ═══ -->
+<section class="section" id="entrees">
+  <div class="section-header"><div class="section-icon">🥟</div><h2 class="section-title" data-i18n="nav-entrees">Entrées</h2></div>
+  <div class="section-divider"></div>
+  <div class="items-grid">
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?tteokbokki,rice,cake,korean" alt="" loading="lazy"><div class="item-info"><div class="item-code">E1</div><div class="item-name" data-i18n="e1-name">Galette de riz sautée au fromage</div><div class="item-trans" data-i18n="e1-trans">芝士炒年糕 · 떡볶이</div></div><div class="item-price">15,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?kimchi,pancake,korean" alt="" loading="lazy"><div class="item-info"><div class="item-code">E2</div><div class="item-name" data-i18n="e2-name">Galette kimchi-fromage</div><div class="item-trans" data-i18n="e2-trans">泡菜芝士煎饼 · 김치전</div></div><div class="item-price">14,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?scallion,pancake,korean" alt="" loading="lazy"><div class="item-info"><div class="item-code">E3</div><div class="item-name" data-i18n="e3-name">Pajeon</div><div class="item-trans" data-i18n="e3-trans">海鲜葱饼 · 파전</div></div><div class="item-price">15,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?dumpling,gyoza,fried" alt="" loading="lazy"><div class="item-info"><div class="item-code">E4</div><div class="item-name" data-i18n="e4-name">Mandoo grillés</div><div class="item-note" data-i18n="mandoo-note">Au choix : poulet ou légumes</div><div class="item-trans" data-i18n="e4-trans">煎饺 · 만두</div></div><div class="item-price">9,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?chicken,wings,fried,crispy" alt="" loading="lazy"><div class="item-info"><div class="item-code">E5</div><div class="item-name" data-i18n="e5-name">Ailes de poulet nature</div><div class="item-trans" data-i18n="e5-trans">原味烤鸡翅 · 닭날개</div></div><div class="item-price">14,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?chicken,wings,garlic" alt="" loading="lazy"><div class="item-info"><div class="item-code">E6</div><div class="item-name" data-i18n="e6-name">Ailes de poulet à l'ail</div><div class="item-trans" data-i18n="e6-trans">大蒜鸡翅 · 마늘 닭날개</div></div><div class="item-price">14,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?spicy,chicken,wings,sauce" alt="" loading="lazy"><div class="item-info"><div class="item-code">E7</div><div class="item-name" data-i18n="e7-name">Ailes poulet aigre-douces épicées</div><div class="item-trans" data-i18n="e7-trans">甜辣鸡翅 · 양념 닭날개</div></div><div class="item-price">14,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?japchae,glass,noodles,korean" alt="" loading="lazy"><div class="item-info"><div class="item-code">E8</div><div class="item-name" data-i18n="e8-name">Japchae</div><div class="item-trans" data-i18n="e8-trans">杂菜 · 잡채</div></div><div class="item-price">12,50 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?tofu,grilled,asian" alt="" loading="lazy"><div class="item-info"><div class="item-code">E9</div><div class="item-name" data-i18n="e9-name">Tofu grillé</div><div class="item-trans" data-i18n="e9-trans">烤豆腐 · 두부구이</div></div><div class="item-price">8,00 €</div></div>
+  </div>
+</section>
+
+<!-- ═══ BIBIMBAP ═══ -->
+<section class="section" id="bibimbap">
+  <div class="section-header"><div class="section-icon">🍲</div><h2 class="section-title">Bibimbap</h2></div>
+  <p class="section-sub" data-i18n="bibimbap-sub">Servi avec un œuf et 4 banchan</p>
+  <div class="section-divider"></div>
+  <div class="items-grid">
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?bibimbap,beef,korean,bowl" alt="" loading="lazy"><div class="item-info"><div class="item-code">B21</div><div class="item-name" data-i18n="b21-name">Bibimbap au bœuf</div><div class="item-trans" data-i18n="b21-trans">牛肉拌饭 · 소고기 비빔밥</div></div><div class="item-price">18,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?bibimbap,chicken,korean,bowl" alt="" loading="lazy"><div class="item-info"><div class="item-code">B22</div><div class="item-name" data-i18n="b22-name">Bibimbap au poulet</div><div class="item-trans" data-i18n="b22-trans">鸡肉拌饭 · 닭고기 비빔밥</div></div><div class="item-price">18,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?bibimbap,pork,korean,bowl" alt="" loading="lazy"><div class="item-info"><div class="item-code">B23</div><div class="item-name" data-i18n="b23-name">Bibimbap au porc</div><div class="item-trans" data-i18n="b23-trans">猪肉拌饭 · 돼지고기 비빔밥</div></div><div class="item-price">18,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?fried,chicken,korean,crispy" alt="" loading="lazy"><div class="item-info"><div class="item-code">B24</div><div class="item-name" data-i18n="b24-name">Bibimbap au poulet frit</div><div class="item-trans" data-i18n="b24-trans">炸鸡拌饭 · 닭튀김 비빔밥</div></div><div class="item-price">18,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?tofu,vegetarian,bowl,asian" alt="" loading="lazy"><div class="item-info"><div class="item-code">B25</div><div class="item-name" data-i18n="b25-name">Bibimbap au tofu</div><div class="item-trans" data-i18n="b25-trans">豆腐拌饭 · 두부 비빔밥</div></div><div class="item-price">17,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?squid,seafood,bowl,asian" alt="" loading="lazy"><div class="item-info"><div class="item-code">B26</div><div class="item-name" data-i18n="b26-name">Bibimbap aux seiches</div><div class="item-trans" data-i18n="b26-trans">鱿鱼拌饭 · 오징어 비빔밥</div></div><div class="item-price">18,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?vegetable,bowl,korean,healthy" alt="" loading="lazy"><div class="item-info"><div class="item-code">B27</div><div class="item-name" data-i18n="b27-name">Bibimbap aux légumes</div><div class="item-trans" data-i18n="b27-trans">蔬菜拌饭 · 야채 비빔밥</div></div><div class="item-price">17,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?shrimp,seafood,bowl,asian" alt="" loading="lazy"><div class="item-info"><div class="item-code">B28</div><div class="item-name" data-i18n="b28-name">Bibimbap aux crevettes</div><div class="item-trans" data-i18n="b28-trans">虾仁拌饭 · 새우 비빔밥</div></div><div class="item-price">18,00 €</div></div>
+  </div>
+</section>
+
+<!-- ═══ PLAQUE CHAUFFANTE ═══ -->
+<section class="section" id="plaque">
+  <div class="section-header"><div class="section-icon">🔥</div><h2 class="section-title" data-i18n="nav-plaque">Plaque Chauffante</h2></div>
+  <p class="section-sub" data-i18n="riz-banchan-sub">Servi avec riz et 4 banchan</p>
+  <div class="section-divider"></div>
+  <div class="items-grid">
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?beef,grill,korean,hotplate" alt="" loading="lazy"><div class="item-info"><div class="item-code">T30</div><div class="item-name" data-i18n="t30-name">Bœuf sur plaque chauffante</div><div class="item-trans" data-i18n="t30-trans">牛肉铁板 · 소고기철판</div></div><div class="item-price">18,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?chicken,grill,korean,plate" alt="" loading="lazy"><div class="item-info"><div class="item-code">T31</div><div class="item-name" data-i18n="t31-name">Poulet sur plaque chauffante</div><div class="item-trans" data-i18n="t31-trans">鸡肉铁板 · 닭불백</div></div><div class="item-price">18,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?pork,grill,korean,plate" alt="" loading="lazy"><div class="item-info"><div class="item-code">T32</div><div class="item-name" data-i18n="t32-name">Porc sur plaque chauffante</div><div class="item-trans" data-i18n="t32-trans">猪肉铁板 · 돼지불백</div></div><div class="item-price">18,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?pork,belly,squid,grill" alt="" loading="lazy"><div class="item-info"><div class="item-code">T33</div><div class="item-name" data-i18n="t33-name">Poitrine de porc et seiche sur plaque</div><div class="item-trans" data-i18n="t33-trans">五花肉鱿鱼铁板 · 오징어 삼겹살 철판</div></div><div class="item-price">18,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?squid,grilled,seafood,korean" alt="" loading="lazy"><div class="item-info"><div class="item-code">T34</div><div class="item-name" data-i18n="t34-name">Seiche sur plaque chauffante</div><div class="item-trans" data-i18n="t34-trans">鱿鱼铁板 · 오징어철판</div></div><div class="item-price">19,00 €</div></div>
+  </div>
+</section>
+
+<!-- ═══ BARBECUE ═══ -->
+<section class="section" id="bbq">
+  <div class="section-header"><div class="section-icon">🍖</div><h2 class="section-title" data-i18n="nav-bbq">Barbecue</h2></div>
+  <p class="section-sub" data-i18n="riz-banchan-sub">Servi avec riz et 4 banchan</p>
+  <div class="section-divider"></div>
+  <div class="items-grid">
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?bulgogi,beef,korean,bbq" alt="" loading="lazy"><div class="item-info"><div class="item-code">K11</div><div class="item-name" data-i18n="k11-name">Bœuf mariné</div><div class="item-trans" data-i18n="k11-trans">腌牛肉 · 소고기 구이</div></div><div class="item-price">20,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?chicken,marinated,grilled,korean" alt="" loading="lazy"><div class="item-info"><div class="item-code">K12</div><div class="item-name" data-i18n="k12-name">Poulet mariné</div><div class="item-trans" data-i18n="k12-trans">腌鸡肉 · 닭고기 구이</div></div><div class="item-price">18,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?pork,marinated,grilled,korean" alt="" loading="lazy"><div class="item-info"><div class="item-code">K13</div><div class="item-name" data-i18n="k13-name">Porc mariné</div><div class="item-trans" data-i18n="k13-trans">腌猪肉 · 돼지고기 구이</div></div><div class="item-price">18,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?beef,marinated,special,korean" alt="" loading="lazy"><div class="item-info"><div class="item-code">K14</div><div class="item-name" data-i18n="k14-name">Bœuf mariné spécial</div><div class="item-trans" data-i18n="k14-trans">特制腌牛肉 · 특 소고기 구이</div></div><div class="item-price">22,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?pork,neck,grilled,korean" alt="" loading="lazy"><div class="item-info"><div class="item-code">K15</div><div class="item-name" data-i18n="k15-name">Échine de porc marinée spéciale</div><div class="item-trans" data-i18n="k15-trans">特制腌猪颈肉 · 특 돼지목살</div></div><div class="item-price">20,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?korean,bbq,mixed,meat,grill" alt="" loading="lazy"><div class="item-info"><div class="item-code">K16</div><div class="item-name" data-i18n="k16-name">Viandes mixtes</div><div class="item-trans" data-i18n="k16-trans">肉类拼盘 · 모듬구이</div></div><div class="item-price">29,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?pork,belly,samgyeopsal,grill" alt="" loading="lazy"><div class="item-info"><div class="item-code">K17</div><div class="item-name" data-i18n="k17-name">Poitrine de porc</div><div class="item-trans" data-i18n="k17-trans">五花肉 · 삼겹살</div></div><div class="item-price">20,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?beef,plain,grilled,korean" alt="" loading="lazy"><div class="item-info"><div class="item-code">K18</div><div class="item-name" data-i18n="k18-name">Bœuf nature</div><div class="item-trans" data-i18n="k18-trans">原味牛肉 · 소고기 생구이</div></div><div class="item-price">20,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?shrimp,grilled,bbq,seafood" alt="" loading="lazy"><div class="item-info"><div class="item-code">K19</div><div class="item-name" data-i18n="k19-name">Crevettes grillées</div><div class="item-trans" data-i18n="k19-trans">烤虾 · 새우구이</div></div><div class="item-price">20,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?squid,marinated,grilled,korean" alt="" loading="lazy"><div class="item-info"><div class="item-code">K20</div><div class="item-name" data-i18n="k20-name">Seiche marinée</div><div class="item-trans" data-i18n="k20-trans">腌鱿鱼 · 오징어구이</div></div><div class="item-price">23,00 €</div></div>
+  </div>
+</section>
+
+<!-- ═══ RIZ SAUTÉS ═══ -->
+<section class="section" id="riz">
+  <div class="section-header"><div class="section-icon">🍚</div><h2 class="section-title" data-i18n="nav-riz">Riz Sautés</h2></div>
+  <p class="section-sub" data-i18n="banchan-4-sub">Servi avec 4 banchan</p>
+  <div class="section-divider"></div>
+  <div class="items-grid">
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?kimchi,fried,rice,korean" alt="" loading="lazy"><div class="item-info"><div class="item-code">C36</div><div class="item-name" data-i18n="c36-name">Kimchi Boggeumbap</div><div class="item-trans" data-i18n="c36-trans">泡菜炒饭 · 김치볶음밥</div></div><div class="item-price">14,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?seafood,fried,rice,asian" alt="" loading="lazy"><div class="item-info"><div class="item-code">C37</div><div class="item-name" data-i18n="c37-name">Riz sauté aux fruits de mer</div><div class="item-trans" data-i18n="c37-trans">海鲜炒饭 · 해물볶음밥</div></div><div class="item-price">14,00 €</div></div>
+  </div>
+</section>
+
+<!-- ═══ NOUILLES ═══ -->
+<section class="section" id="nouilles">
+  <div class="section-header"><div class="section-icon">🍜</div><h2 class="section-title" data-i18n="nav-nouilles">Nouilles</h2></div>
+  <p class="section-sub" data-i18n="banchan-4-sub">Servi avec 4 banchan</p>
+  <div class="section-divider"></div>
+  <div class="items-grid">
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?jajangmyeon,noodles,black,sauce" alt="" loading="lazy"><div class="item-info"><div class="item-code">C38</div><div class="item-name" data-i18n="c38-name">Nouilles à la sauce noire</div><div class="item-trans" data-i18n="c38-trans">炸酱面 · 짜장면</div></div><div class="item-price">15,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?spicy,noodles,seafood,soup" alt="" loading="lazy"><div class="item-info"><div class="item-code">H39</div><div class="item-name" data-i18n="h39-name">Soupe de nouilles pimentée aux fruits de mer</div><div class="item-trans" data-i18n="h39-trans">海鲜辣汤面 · 해물짬뽕</div></div><div class="item-price">13,00 €</div></div>
+  </div>
+</section>
+
+<!-- ═══ SOUPES ═══ -->
+<section class="section" id="soupes">
+  <div class="section-header"><div class="section-icon">🥣</div><h2 class="section-title" data-i18n="nav-soupes">Soupes</h2></div>
+  <p class="section-sub" data-i18n="riz-banchan-sub">Servies avec riz et 4 banchan</p>
+  <div class="section-divider"></div>
+  <div class="items-grid">
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?dumpling,soup,asian,mandu" alt="" loading="lazy"><div class="item-info"><div class="item-code">G42</div><div class="item-name" data-i18n="g42-name">Soupe aux raviolis</div><div class="item-trans" data-i18n="g42-trans">饺子汤 · 만두국</div></div><div class="item-price">16,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?tofu,soup,korean,jjigae" alt="" loading="lazy"><div class="item-info"><div class="item-code">G43</div><div class="item-name" data-i18n="g43-name">Tofu jjigae</div><div class="item-trans" data-i18n="g43-trans">豆腐汤 · 순두부찌개</div></div><div class="item-price">16,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?beef,stew,korean,hot" alt="" loading="lazy"><div class="item-info"><div class="item-code">G44</div><div class="item-name" data-i18n="g44-name">Bœuf jjigae</div><div class="item-trans" data-i18n="g44-trans">牛肉汤 · 뚝불</div></div><div class="item-price">16,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?kimchi,stew,korean,red" alt="" loading="lazy"><div class="item-info"><div class="item-code">G45</div><div class="item-name" data-i18n="g45-name">Kimchi jjigae</div><div class="item-trans" data-i18n="g45-trans">泡菜锅 · 김치찌개</div></div><div class="item-price">16,00 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?spicy,beef,soup,korean" alt="" loading="lazy"><div class="item-info"><div class="item-code">G46</div><div class="item-name" data-i18n="g46-name">Bœuf jjigae épicé</div><div class="item-trans" data-i18n="g46-trans">辣牛肉汤 · 육개장</div></div><div class="item-price">16,00 €</div></div>
+  </div>
+</section>
+
+<!-- ═══ RAGOÛTS ═══ -->
+<section class="section" id="ragouts">
+  <div class="section-header"><div class="section-icon">🫕</div><h2 class="section-title" data-i18n="nav-ragouts">Ragoûts</h2></div>
+  <p class="section-sub" data-i18n="ragout-sub">Servis avec riz et 4 banchan par personne</p>
+  <div class="section-divider"></div>
+  <div class="items-grid">
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?korean,hot,pot,beef" alt="" loading="lazy"><div class="item-info"><div class="item-code">H39</div><div class="item-name" data-i18n="h39r-name">Ragoût coréen au bœuf</div><div class="item-trans" data-i18n="h39r-trans">牛肉火锅 · 소고기 전골</div></div><div class="ragout-prices"><div><span class="rp-amount">19,50 €</span><div class="rp-label" data-i18n="1pers">1 personne</div></div><div class="rp-sep"></div><div><span class="rp-amount">38,00 €</span><div class="rp-label" data-i18n="2pers">2 personnes</div></div></div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?korean,hot,pot,chicken" alt="" loading="lazy"><div class="item-info"><div class="item-code">H40</div><div class="item-name" data-i18n="h40-name">Ragoût au poulet et au fromage</div><div class="item-trans" data-i18n="h40-trans">芝士鸡肉火锅 · 치즈 닭 전골</div></div><div class="ragout-prices"><div><span class="rp-amount">19,50 €</span><div class="rp-label" data-i18n="1pers">1 personne</div></div><div class="rp-sep"></div><div><span class="rp-amount">38,00 €</span><div class="rp-label" data-i18n="2pers">2 personnes</div></div></div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?udon,hot,pot,korean" alt="" loading="lazy"><div class="item-info"><div class="item-code">H41</div><div class="item-name" data-i18n="h41-name">Ragoût poulet, udon et fromage</div><div class="item-note" data-i18n="h41-note">Pour 2 personnes uniquement</div><div class="item-trans" data-i18n="h41-trans">乌冬鸡肉芝士火锅 · 우동 치즈뒤불고기 전골</div></div><div class="ragout-prices"><div><span class="rp-amount">37,00 €</span><div class="rp-label" data-i18n="2pers">2 personnes</div></div></div></div>
+  </div>
+</section>
+
+<!-- ═══ DESSERTS ═══ -->
+<section class="section" id="desserts">
+  <div class="section-header"><div class="section-icon">🍡</div><h2 class="section-title" data-i18n="nav-desserts">Desserts</h2></div>
+  <div class="section-divider"></div>
+  <div class="items-grid">
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?hotteok,korean,pancake,sweet" alt="" loading="lazy"><div class="item-info"><div class="item-name" data-i18n="des1-name">Hotteok</div><div class="item-trans" data-i18n="des1-trans">韩式煎饼 · 호떡</div></div><div class="item-price">7,80 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?mochi,ice,cream,dessert" alt="" loading="lazy"><div class="item-info"><div class="item-name" data-i18n="des2-name">Mochi glacé (2 pcs)</div><div class="item-trans" data-i18n="des2-trans">冰淇淋麻薯 · 모찌 아이스크림</div></div><div class="item-price">6,80 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?cheesecake,dessert,slice" alt="" loading="lazy"><div class="item-info"><div class="item-name" data-i18n="des3-name">Cheesecake</div><div class="item-trans" data-i18n="des3-trans">芝士蛋糕 · 치즈케이크</div></div><div class="item-price">6,80 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?mochi,korean,sweet,rice" alt="" loading="lazy"><div class="item-info"><div class="item-name" data-i18n="des4-name">Mochi coréen (5 pcs)</div><div class="item-trans" data-i18n="des4-trans">韩式麻薯 · 한국식 모찌</div></div><div class="item-price">6,80 €</div></div>
+    <div class="item-card"><img class="item-photo" src="https://source.unsplash.com/72x72/?chocolate,fondant,lava,cake" alt="" loading="lazy"><div class="item-info"><div class="item-name" data-i18n="des5-name">Fondant au chocolat</div><div class="item-trans" data-i18n="des5-trans">巧克力熔岩蛋糕 · 초코 퐁당</div></div><div class="item-price">6,80 €</div></div>
+  </div>
+</section>
+
+<!-- ═══ BOISSONS ═══ -->
+<section class="section" id="boissons">
+  <div class="section-header"><div class="section-icon">🍶</div><h2 class="section-title" data-i18n="nav-boissons">Boissons</h2></div>
+  <div class="section-divider"></div>
+
+  <h3 class="subsection-title" data-i18n="sub-vins">Vins</h3>
+  <div class="wines-grid" style="margin-bottom:20px;">
+    <div class="wine-card"><span class="wine-tag rose">Rosé</span><div class="wine-name">Grenache rosé</div><div class="wine-row"><span class="wine-label" data-i18n="w-verre">le verre</span><span class="wine-val">5,00 €</span></div><div class="wine-row"><span class="wine-label">50 cl</span><span class="wine-val">10,00 €</span></div></div>
+    <div class="wine-card"><span class="wine-tag rouge">Rouge</span><div class="wine-name">Merlot</div><div class="wine-row"><span class="wine-label" data-i18n="w-verre">le verre</span><span class="wine-val">5,00 €</span></div><div class="wine-row"><span class="wine-label" data-i18n="w-gverre">le grand verre</span><span class="wine-val">10,00 €</span></div></div>
+    <div class="wine-card"><span class="wine-tag blanc">Blanc</span><div class="wine-name">Sauvignon blanc</div><div class="wine-row"><span class="wine-label" data-i18n="w-verre">le verre</span><span class="wine-val">5,00 €</span></div><div class="wine-row"><span class="wine-label">50 cl</span><span class="wine-val">10,00 €</span></div></div>
+    <div class="wine-card"><span class="wine-tag rouge">Rouge</span><div class="wine-name">Brouilly</div><div class="wine-row"><span class="wine-label" data-i18n="w-demi">demi-bouteille</span><span class="wine-val">19,00 €</span></div><div class="wine-row"><span class="wine-label" data-i18n="w-bout">bouteille</span><span class="wine-val">29,00 €</span></div></div>
+    <div class="wine-card"><span class="wine-tag rouge">Rouge</span><div class="wine-name">Côtes du Rhône</div><div class="wine-row"><span class="wine-label" data-i18n="w-demi">demi-bouteille</span><span class="wine-val">13,00 €</span></div><div class="wine-row"><span class="wine-label" data-i18n="w-bout">bouteille</span><span class="wine-val">19,00 €</span></div></div>
+  </div>
+
+  <h3 class="subsection-title" data-i18n="sub-alcools">Alcools coréens</h3>
+  <div class="drinks-grid" style="margin-bottom:20px;">
+    <div class="drink-card"><img class="drink-photo" src="https://source.unsplash.com/290x164/?beer,glass,cold" alt="" loading="lazy"><div class="drink-body"><div class="drink-name" data-i18n="biere-name">Bière Cass</div><div class="drink-trans">卡斯啤酒 · 카스</div><div class="drink-price">5,50 €</div></div></div>
+    <div class="drink-card"><img class="drink-photo" src="https://source.unsplash.com/290x164/?makgeolli,korean,rice,wine" alt="" loading="lazy"><div class="drink-body"><div class="drink-name">Makgeolli</div><div class="drink-trans">马格利 · 막걸리</div><div class="drink-price">13,00 €</div></div></div>
+    <div class="drink-card"><img class="drink-photo" src="https://source.unsplash.com/290x164/?korean,herbal,wine,drink" alt="" loading="lazy"><div class="drink-body"><div class="drink-name">Bekseju</div><div class="drink-trans">百岁酒 · 백세주</div><div class="drink-price">16,00 €</div></div></div>
+    <div class="drink-card"><img class="drink-photo" src="https://source.unsplash.com/290x164/?berry,wine,korean" alt="" loading="lazy"><div class="drink-body"><div class="drink-name">Bokbunja</div><div class="drink-trans">覆盆子酒 · 복분자</div><div class="drink-price">25,00 €</div></div></div>
+    <div class="drink-card"><img class="drink-photo" src="https://source.unsplash.com/290x164/?soju,korean,green,bottle" alt="" loading="lazy"><div class="drink-body"><div class="drink-name">Soju</div><div class="drink-trans">烧酒 · 소주</div><div class="drink-price">15,00 €</div></div></div>
+  </div>
+
+  <h3 class="subsection-title" data-i18n="sub-aperitifs">Apéritifs</h3>
+  <div class="drinks-grid" style="margin-bottom:20px;">
+    <div class="drink-card"><div class="drink-body"><span class="drink-emoji">🍶</span><div class="drink-name">Makgeolli</div><div class="drink-trans">막걸리</div><div class="drink-price">4,00 €</div></div></div>
+    <div class="drink-card"><div class="drink-body"><span class="drink-emoji">🍵</span><div class="drink-name">Bekseju</div><div class="drink-trans">백세주</div><div class="drink-price">6,00 €</div></div></div>
+    <div class="drink-card"><div class="drink-body"><span class="drink-emoji">🫐</span><div class="drink-name">Bokbunja</div><div class="drink-trans">복분자</div><div class="drink-price">6,00 €</div></div></div>
+    <div class="drink-card"><div class="drink-body"><span class="drink-emoji">🥃</span><div class="drink-name">Soju</div><div class="drink-trans">소주</div><div class="drink-price">5,00 €</div></div></div>
+  </div>
+
+  <h3 class="subsection-title" data-i18n="sub-coreennes">Boissons sucrées coréennes</h3>
+  <div class="drinks-grid" style="margin-bottom:20px;">
+    <div class="drink-card"><div class="drink-body"><span class="drink-emoji">🌿</span><div class="drink-name" data-i18n="dr-jujube">Jus de jujube</div><div class="drink-trans">大枣汁 · 대추</div><div class="drink-price">4,50 €</div></div></div>
+    <div class="drink-card"><div class="drink-body"><span class="drink-emoji">🍂</span><div class="drink-name" data-i18n="dr-kaki">Jus de kaki cannelle</div><div class="drink-trans">柿子肉桂汁 · 수정과</div><div class="drink-price">4,50 €</div></div></div>
+    <div class="drink-card"><div class="drink-body"><span class="drink-emoji">🍇</span><div class="drink-name" data-i18n="dr-raisin">Boisson aux raisins</div><div class="drink-trans">葡萄饮料 · 포도</div><div class="drink-price">4,50 €</div></div></div>
+  </div>
+
+  <h3 class="subsection-title" data-i18n="sub-thes">Thés & Infusions</h3>
+  <div class="drinks-grid" style="margin-bottom:20px;">
+    <div class="drink-card"><img class="drink-photo" src="https://source.unsplash.com/290x164/?green,tea,cup,asian" alt="" loading="lazy"><div class="drink-body"><div class="drink-name" data-i18n="dr-the-vert">Thé vert</div><div class="drink-trans">绿茶 · 녹차</div><div class="drink-price">4,50 €</div></div></div>
+    <div class="drink-card"><img class="drink-photo" src="https://source.unsplash.com/290x164/?jasmine,tea,flower,cup" alt="" loading="lazy"><div class="drink-body"><div class="drink-name" data-i18n="dr-the-jasmin">Thé au jasmin</div><div class="drink-trans">茉莉花茶 · 자스민차</div><div class="drink-price">4,50 €</div></div></div>
+    <div class="drink-card"><img class="drink-photo" src="https://source.unsplash.com/290x164/?ginger,tea,warm,cup" alt="" loading="lazy"><div class="drink-body"><div class="drink-name" data-i18n="dr-gingembre">Infusion gingembre</div><div class="drink-trans">生姜茶 · 생강차</div><div class="drink-price">4,50 €</div></div></div>
+    <div class="drink-card"><div class="drink-body"><span class="drink-emoji">🍋</span><div class="drink-name" data-i18n="dr-yuzu">Infusion citron yuzu</div><div class="drink-trans">柚子茶 · 유자차</div><div class="drink-price">4,50 €</div></div></div>
+    <div class="drink-card"><div class="drink-body"><span class="drink-emoji">🌾</span><div class="drink-name" data-i18n="dr-salomon">Infusion seau de salomon</div><div class="drink-trans">黄精茶 · 둥굴레차</div><div class="drink-price">4,50 €</div></div></div>
+  </div>
+
+  <h3 class="subsection-title" data-i18n="sub-sodas">Sodas & Eaux</h3>
+  <div class="drinks-grid" style="margin-bottom:20px;">
+    <div class="drink-card"><div class="drink-body"><span class="drink-emoji">🥤</span><div class="drink-name">Coca / Coca Zero</div><div class="drink-trans">可口可乐 · 콜라</div><div class="drink-price">2,50 €</div></div></div>
+    <div class="drink-card"><div class="drink-body"><span class="drink-emoji">🍊</span><div class="drink-name">Orangina</div><div class="drink-trans">橙子汽水 · 오렌지나</div><div class="drink-price">2,50 €</div></div></div>
+    <div class="drink-card"><div class="drink-body"><span class="drink-emoji">🍊</span><div class="drink-name" data-i18n="dr-orange">Jus d'orange</div><div class="drink-trans">橙汁 · 오렌지 주스</div><div class="drink-price">2,50 €</div></div></div>
+    <div class="drink-card"><div class="drink-body"><span class="drink-emoji">🍎</span><div class="drink-name" data-i18n="dr-pomme">Jus de pomme</div><div class="drink-trans">苹果汁 · 사과 주스</div><div class="drink-price">2,50 €</div></div></div>
+    <div class="drink-card"><div class="drink-body"><span class="drink-emoji">💧</span><div class="drink-name">Evian</div><div class="drink-trans">依云矿泉水 · 에비앙</div><div class="drink-price">4,50 €</div></div></div>
+    <div class="drink-card"><div class="drink-body"><span class="drink-emoji">💦</span><div class="drink-name">San Pellegrino</div><div class="drink-trans">圣培露气泡水 · 산 펠레그리노</div><div class="drink-price">4,50 €</div></div></div>
+  </div>
+
+  <h3 class="subsection-title" data-i18n="sub-cafes">Cafés</h3>
+  <div class="drinks-grid">
+    <div class="drink-card"><img class="drink-photo" src="https://source.unsplash.com/290x164/?espresso,coffee,cup,black" alt="" loading="lazy"><div class="drink-body"><div class="drink-name" data-i18n="dr-cafe">Café / Décaféiné</div><div class="drink-trans">咖啡 · 커피</div><div class="drink-price">2,50 €</div></div></div>
+    <div class="drink-card"><img class="drink-photo" src="https://source.unsplash.com/290x164/?americano,coffee,long,cup" alt="" loading="lazy"><div class="drink-body"><div class="drink-name" data-i18n="dr-allonge">Café allongé</div><div class="drink-trans">美式咖啡 · 아메리카노</div><div class="drink-price">3,00 €</div></div></div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <p data-i18n="footer">✦ &nbsp; Merci de votre visite &nbsp; · &nbsp; 감사합니다 &nbsp; ✦</p>
+</footer>
+
+<script>
+// ══════════════════════════════════════════
+// TRADUCTIONS
+// ══════════════════════════════════════════
+const T = {
+  fr: {
+    'header-title':'Notre Menu',
+    'nav-menus':'Menus','nav-entrees':'Entrées','nav-plaque':'Plaque',
+    'nav-riz':'Riz sautés','nav-nouilles':'Nouilles','nav-soupes':'Soupes',
+    'nav-ragouts':'Ragoûts','nav-desserts':'Desserts','nav-boissons':'Boissons',
+    'nav-bbq':'Barbecue Coréen',
+    'sec-menus':'Nos Menus',
+    'midi-title':'Menu Midi','midi-sub':'Lun – Ven · 11h–15h',
+    'midi-desc':'Bibimbap ou Plaque chauffante · Entrée au choix · Dessert au choix',
+    'label-entree':'Entrée au choix','label-entrees':'Entrées au choix',
+    'label-plat':'Plat au choix','label-dessert':'Dessert au choix',
+    'm-salade':'Salade','m-galette-haricot':'Galette haricots mungo',
+    'm-mandoo':'Mandoo raviolis grillés','m-mandoo-note':'poulet ou légumes · 3 pcs',
+    'm-ailes':'Ailes de poulet','m-ailes-note':'aigre-douces, épicées ou nature · 3 pcs',
+    'boeuf':'Bœuf','poulet':'Poulet','porc':'Porc','poulet-frit':'Poulet frit',
+    'tofu':'Tofu','seiche':'Seiche','legumes':'Légumes','crevettes':'Crevettes','calamar':'Calamar',
+    'poitrine-seiche':'Poitrine de porc & seiche',
+    'bibimbap-note':'Tous servis avec un œuf','banchan-note':'Servis avec riz et banchan',
+    'd-litchi':'Fruits litchi','d-the-vert':'Thé vert','d-the-jasmin':'Thé au jasmin',
+    'soir-title':'Menu Soir & Week-end','soir-sub':'Tous les jours · 18h–23h',
+    'soir-2e':'2 ENTRÉES + 1 PLAT','soir-3e':'3 ENTRÉES + 1 PLAT',
+    's-raviolis':'3 pièces de raviolis grillés','s-soupe-poireau':'Soupe aux poireaux et bœuf pimenté',
+    's-tofu':'2 pièces de tofu grillés','s-galette':'2 galettes aux haricots',
+    's-ailes':"2 pièces d'ailes de poulet",'s-vermicelles':'Vermicelles de patates douces',
+    'veg':'végétarien',
+    'g-raviolis':'Soupe aux raviolis','g-tofu':'Tofu jjigae','g-kimchi':'Kimchi jjigae','g-boeuf-epice':'Bœuf jjigae épicé',
+    'soir-info':"Tous les plats sont accompagnés de riz et de mets variés. Supplément à 4 € : petite entrée, riz ou mets variés. Œuf en supplément : 2 €",
+    'bibimbap-sub':'Servi avec un œuf et 4 banchan',
+    'riz-banchan-sub':'Servi avec riz et 4 banchan','banchan-4-sub':'Servi avec 4 banchan',
+    'ragout-sub':'Servis avec riz et 4 banchan par personne',
+    '1pers':'1 personne','2pers':'2 personnes',
+    'e1-name':'Galette de riz sautée au fromage','e1-trans':'芝士炒年糕 · 떡볶이',
+    'e2-name':'Galette kimchi-fromage','e2-trans':'泡菜芝士煎饼 · 김치전',
+    'e3-name':'Pajeon','e3-trans':'海鲜葱饼 · 파전',
+    'e4-name':'Mandoo grillés','e4-trans':'煎饺 · 만두','mandoo-note':'Au choix : poulet ou légumes',
+    'e5-name':'Ailes de poulet nature','e5-trans':'原味烤鸡翅 · 닭날개',
+    'e6-name':"Ailes de poulet à l'ail",'e6-trans':'大蒜鸡翅 · 마늘 닭날개',
+    'e7-name':'Ailes poulet aigre-douces épicées','e7-trans':'甜辣鸡翅 · 양념 닭날개',
+    'e8-name':'Japchae','e8-trans':'杂菜 · 잡채',
+    'e9-name':'Tofu grillé','e9-trans':'烤豆腐 · 두부구이',
+    'b21-name':'Bibimbap au bœuf','b21-trans':'牛肉拌饭 · 소고기 비빔밥',
+    'b22-name':'Bibimbap au poulet','b22-trans':'鸡肉拌饭 · 닭고기 비빔밥',
+    'b23-name':'Bibimbap au porc','b23-trans':'猪肉拌饭 · 돼지고기 비빔밥',
+    'b24-name':'Bibimbap au poulet frit','b24-trans':'炸鸡拌饭 · 닭튀김 비빔밥',
+    'b25-name':'Bibimbap au tofu','b25-trans':'豆腐拌饭 · 두부 비빔밥',
+    'b26-name':'Bibimbap aux seiches','b26-trans':'鱿鱼拌饭 · 오징어 비빔밥',
+    'b27-name':'Bibimbap aux légumes','b27-trans':'蔬菜拌饭 · 야채 비빔밥',
+    'b28-name':'Bibimbap aux crevettes','b28-trans':'虾仁拌饭 · 새우 비빔밥',
+    't30-name':'Bœuf sur plaque chauffante','t30-trans':'牛肉铁板 · 소고기철판',
+    't31-name':'Poulet sur plaque chauffante','t31-trans':'鸡肉铁板 · 닭불백',
+    't32-name':'Porc sur plaque chauffante','t32-trans':'猪肉铁板 · 돼지불백',
+    't33-name':'Poitrine de porc et seiche sur plaque','t33-trans':'五花肉鱿鱼铁板 · 오징어 삼겹살 철판',
+    't34-name':'Seiche sur plaque chauffante','t34-trans':'鱿鱼铁板 · 오징어철판',
+    'k11-name':'Bœuf mariné','k11-trans':'腌牛肉 · 소고기 구이',
+    'k12-name':'Poulet mariné','k12-trans':'腌鸡肉 · 닭고기 구이',
+    'k13-name':'Porc mariné','k13-trans':'腌猪肉 · 돼지고기 구이',
+    'k14-name':'Bœuf mariné spécial','k14-trans':'特制腌牛肉 · 특 소고기 구이',
+    'k15-name':'Échine de porc marinée spéciale','k15-trans':'特制腌猪颈肉 · 특 돼지목살',
+    'k16-name':'Viandes mixtes','k16-trans':'肉类拼盘 · 모듬구이',
+    'k17-name':'Poitrine de porc','k17-trans':'五花肉 · 삼겹살',
+    'k18-name':'Bœuf nature','k18-trans':'原味牛肉 · 소고기 생구이',
+    'k19-name':'Crevettes grillées','k19-trans':'烤虾 · 새우구이',
+    'k20-name':'Seiche marinée','k20-trans':'腌鱿鱼 · 오징어구이',
+    'c36-name':'Kimchi Boggeumbap','c36-trans':'泡菜炒饭 · 김치볶음밥',
+    'c37-name':'Riz sauté aux fruits de mer','c37-trans':'海鲜炒饭 · 해물볶음밥',
+    'c38-name':'Nouilles à la sauce noire','c38-trans':'炸酱面 · 짜장면',
+    'h39-name':'Soupe de nouilles pimentée aux fruits de mer','h39-trans':'海鲜辣汤面 · 해물짬뽕',
+    'g42-name':'Soupe aux raviolis','g42-trans':'饺子汤 · 만두국',
+    'g43-name':'Tofu jjigae','g43-trans':'豆腐汤 · 순두부찌개',
+    'g44-name':'Bœuf jjigae','g44-trans':'牛肉汤 · 뚝불',
+    'g45-name':'Kimchi jjigae','g45-trans':'泡菜锅 · 김치찌개',
+    'g46-name':'Bœuf jjigae épicé','g46-trans':'辣牛肉汤 · 육개장',
+    'h39r-name':'Ragoût coréen au bœuf','h39r-trans':'牛肉火锅 · 소고기 전골',
+    'h40-name':'Ragoût au poulet et au fromage','h40-trans':'芝士鸡肉火锅 · 치즈 닭 전골',
+    'h41-name':'Ragoût poulet, udon et fromage','h41-note':'Pour 2 personnes uniquement','h41-trans':'乌冬鸡肉芝士火锅 · 우동 치즈뒤불고기 전골',
+    'des1-name':'Hotteok','des1-trans':'韩式煎饼 · 호떡',
+    'des2-name':'Mochi glacé (2 pcs)','des2-trans':'冰淇淋麻薯 · 모찌 아이스크림',
+    'des3-name':'Cheesecake','des3-trans':'芝士蛋糕 · 치즈케이크',
+    'des4-name':'Mochi coréen (5 pcs)','des4-trans':'韩式麻薯 · 한국식 모찌',
+    'des5-name':'Fondant au chocolat','des5-trans':'巧克力熔岩蛋糕 · 초코 퐁당',
+    'sub-vins':'Vins','sub-alcools':'Alcools coréens','sub-aperitifs':'Apéritifs',
+    'sub-coreennes':'Boissons sucrées coréennes','sub-thes':'Thés & Infusions',
+    'sub-sodas':'Sodas & Eaux','sub-cafes':'Cafés',
+    'w-verre':'le verre','w-gverre':'le grand verre','w-demi':'demi-bouteille','w-bout':'bouteille',
+    'biere-name':'Bière Cass',
+    'dr-jujube':'Jus de jujube','dr-kaki':'Jus de kaki cannelle','dr-raisin':'Boisson aux raisins',
+    'dr-the-vert':'Thé vert','dr-the-jasmin':'Thé au jasmin','dr-gingembre':'Infusion gingembre',
+    'dr-yuzu':'Infusion citron yuzu','dr-salomon':'Infusion seau de salomon',
+    'dr-orange':"Jus d'orange",'dr-pomme':'Jus de pomme',
+    'dr-cafe':'Café / Décaféiné','dr-allonge':'Café allongé',
+    'footer':'✦ \u00A0 Merci de votre visite \u00A0·\u00A0 감사합니다 \u00A0 ✦',
+    'badge-midi':'Menu Midi en service','badge-soir':'Menu Soir en service','badge-weekend':'Menu Week-end en service','badge-attente':'Service du soir à partir de 18h','badge-ferme':'Ouverture bientôt',
+  }
+};
+
+// ANGLAIS
+T.en = Object.assign({}, T.fr, {
+  'header-title':'Our Menu',
+  'nav-menus':'Menus','nav-entrees':'Starters','nav-plaque':'Hot Plate',
+  'nav-riz':'Fried Rice','nav-nouilles':'Noodles','nav-soupes':'Soups',
+  'nav-ragouts':'Stews','nav-desserts':'Desserts','nav-boissons':'Drinks',
+  'nav-bbq':'Korean BBQ',
+  'sec-menus':'Our Menus',
+  'midi-title':'Lunch Menu','midi-sub':'Mon – Fri · 11am–3pm',
+  'midi-desc':'Bibimbap or Hot Plate · Starter of your choice · Dessert of your choice',
+  'label-entree':'Starter of your choice','label-entrees':'Starters of your choice',
+  'label-plat':'Main course of your choice','label-dessert':'Dessert of your choice',
+  'm-salade':'Salad','m-galette-haricot':'Mung bean pancake',
+  'm-mandoo':'Grilled Mandoo dumplings','m-mandoo-note':'chicken or vegetables · 3 pcs',
+  'm-ailes':'Chicken wings','m-ailes-note':'sweet & sour, spicy or plain · 3 pcs',
+  'boeuf':'Beef','poulet':'Chicken','porc':'Pork','poulet-frit':'Fried chicken',
+  'tofu':'Tofu','seiche':'Squid','legumes':'Vegetables','crevettes':'Shrimp','calamar':'Squid',
+  'poitrine-seiche':'Pork belly & squid',
+  'bibimbap-note':'All served with an egg','banchan-note':'Served with rice and banchan',
+  'd-litchi':'Lychee fruit','d-the-vert':'Green tea','d-the-jasmin':'Jasmine tea',
+  'soir-title':'Evening & Weekend Menu','soir-sub':'Every day · 6pm–11pm',
+  'soir-2e':'2 STARTERS + 1 MAIN','soir-3e':'3 STARTERS + 1 MAIN',
+  's-raviolis':'3 grilled dumpling pieces','s-soupe-poireau':'Leek and spicy beef soup',
+  's-tofu':'2 grilled tofu pieces','s-galette':'2 bean pancakes',
+  's-ailes':'2 chicken wings','s-vermicelles':'Sweet potato vermicelli',
+  'veg':'vegetarian',
+  'g-raviolis':'Dumpling soup','g-tofu':'Tofu jjigae','g-kimchi':'Kimchi jjigae','g-boeuf-epice':'Spicy beef jjigae',
+  'soir-info':'All dishes served with rice and assorted side dishes. Supplement €4: small starter, rice or side dishes. Extra egg: €2',
+  'bibimbap-sub':'Served with an egg and 4 banchan',
+  'riz-banchan-sub':'Served with rice and 4 banchan','banchan-4-sub':'Served with 4 banchan',
+  'ragout-sub':'Served with rice and 4 banchan per person',
+  '1pers':'1 person','2pers':'2 persons',
+  'e1-name':'Fried rice cake with cheese','e2-name':'Kimchi cheese pancake',
+  'e3-name':'Pajeon (seafood scallion pancake)','e4-name':'Grilled Mandoo dumplings',
+  'mandoo-note':'Choice of: chicken or vegetables',
+  'e5-name':'Plain chicken wings','e6-name':'Garlic chicken wings',
+  'e7-name':'Sweet & spicy chicken wings','e8-name':'Japchae (glass noodles)','e9-name':'Grilled tofu',
+  'b21-name':'Beef bibimbap','b22-name':'Chicken bibimbap','b23-name':'Pork bibimbap',
+  'b24-name':'Fried chicken bibimbap','b25-name':'Tofu bibimbap','b26-name':'Squid bibimbap',
+  'b27-name':'Vegetable bibimbap','b28-name':'Shrimp bibimbap',
+  't30-name':'Beef on hot plate','t31-name':'Chicken on hot plate','t32-name':'Pork on hot plate',
+  't33-name':'Pork belly & squid on hot plate','t34-name':'Squid on hot plate',
+  'k11-name':'Marinated beef','k12-name':'Marinated chicken','k13-name':'Marinated pork',
+  'k14-name':'Special marinated beef','k15-name':'Special marinated pork neck',
+  'k16-name':'Mixed meats','k17-name':'Pork belly','k18-name':'Plain beef',
+  'k19-name':'Grilled shrimp','k20-name':'Marinated squid',
+  'c36-name':'Kimchi fried rice','c37-name':'Seafood fried rice',
+  'c38-name':'Noodles in black bean sauce','h39-name':'Spicy seafood noodle soup',
+  'g42-name':'Dumpling soup','g43-name':'Tofu jjigae','g44-name':'Beef jjigae',
+  'g45-name':'Kimchi jjigae','g46-name':'Spicy beef jjigae',
+  'h39r-name':'Korean beef stew','h40-name':'Chicken & cheese stew',
+  'h41-name':'Chicken, udon & cheese stew','h41-note':'For 2 persons only',
+  'des1-name':'Hotteok (sweet pancake)','des2-name':'Ice mochi (2 pcs)',
+  'des3-name':'Cheesecake','des4-name':'Korean mochi (5 pcs)','des5-name':'Chocolate fondant',
+  'sub-vins':'Wines','sub-alcools':'Korean spirits','sub-aperitifs':'Aperitifs',
+  'sub-coreennes':'Korean sweet drinks','sub-thes':'Teas & Infusions',
+  'sub-sodas':'Sodas & Water','sub-cafes':'Coffees',
+  'w-verre':'glass','w-gverre':'large glass','w-demi':'half bottle','w-bout':'bottle',
+  'biere-name':'Cass Beer',
+  'dr-jujube':'Jujube juice','dr-kaki':'Persimmon cinnamon drink','dr-raisin':'Grape drink',
+  'dr-the-vert':'Green tea','dr-the-jasmin':'Jasmine tea','dr-gingembre':'Ginger infusion',
+  'dr-yuzu':'Yuzu lemon infusion','dr-salomon':"Solomon's seal infusion",
+  'dr-orange':'Orange juice','dr-pomme':'Apple juice',
+  'dr-cafe':'Coffee / Decaf','dr-allonge':'Long coffee (Americano)',
+  'footer':'✦ \u00A0 Thank you for your visit \u00A0·\u00A0 감사합니다 \u00A0 ✦',
+  'badge-midi':'Lunch menu in service','badge-soir':'Evening menu in service',
+  'badge-weekend':'Weekend menu in service','badge-attente':'Evening service from 6pm','badge-ferme':'Opening soon',
+});
+
+// CHINOIS
+T.zh = Object.assign({}, T.fr, {
+  'header-title':'我们的菜单',
+  'nav-menus':'套餐','nav-entrees':'前菜','nav-plaque':'铁板料理',
+  'nav-riz':'炒饭','nav-nouilles':'面条','nav-soupes':'汤品',
+  'nav-ragouts':'火锅','nav-desserts':'甜点','nav-boissons':'饮品',
+  'nav-bbq':'韩式烤肉',
+  'sec-menus':'我们的套餐',
+  'midi-title':'午餐套餐','midi-sub':'周一至周五 · 11:00–15:00',
+  'midi-desc':'拌饭或铁板料理 · 自选前菜 · 自选甜点',
+  'label-entree':'自选前菜','label-entrees':'自选前菜',
+  'label-plat':'自选主食','label-dessert':'自选甜点',
+  'm-salade':'沙拉','m-galette-haricot':'绿豆煎饼',
+  'm-mandoo':'煎饺','m-mandoo-note':'鸡肉或蔬菜 · 3个',
+  'm-ailes':'鸡翅','m-ailes-note':'甜辣、辣或原味 · 3个',
+  'boeuf':'牛肉','poulet':'鸡肉','porc':'猪肉','poulet-frit':'炸鸡',
+  'tofu':'豆腐','seiche':'鱿鱼','legumes':'蔬菜','crevettes':'虾','calamar':'鱿鱼',
+  'poitrine-seiche':'五花肉与鱿鱼',
+  'bibimbap-note':'均配鸡蛋','banchan-note':'配米饭和小菜',
+  'd-litchi':'荔枝','d-the-vert':'绿茶','d-the-jasmin':'茉莉花茶',
+  'soir-title':'晚餐及周末套餐','soir-sub':'每天 · 18:00–23:00',
+  'soir-2e':'2道前菜 + 1道主食','soir-3e':'3道前菜 + 1道主食',
+  's-raviolis':'3个煎饺','s-soupe-poireau':'韭菜辣牛肉汤',
+  's-tofu':'2块煎豆腐','s-galette':'2块豆饼',
+  's-ailes':'2个鸡翅','s-vermicelles':'红薯粉条',
+  'veg':'素食',
+  'g-raviolis':'饺子汤','g-tofu':'豆腐汤','g-kimchi':'泡菜锅','g-boeuf-epice':'辣牛肉汤',
+  'soir-info':'所有菜品均配米饭和小菜。附加费4€：小前菜、米饭或小菜。鸡蛋附加费：2€',
+  'bibimbap-sub':'配鸡蛋和4种小菜',
+  'riz-banchan-sub':'配米饭和4种小菜','banchan-4-sub':'配4种小菜',
+  'ragout-sub':'每人配米饭和4种小菜',
+  '1pers':'1人份','2pers':'2人份',
+  'e1-name':'芝士炒年糕','e2-name':'泡菜芝士煎饼','e3-name':'海鲜葱饼',
+  'e4-name':'煎饺','mandoo-note':'可选：鸡肉或蔬菜',
+  'e5-name':'原味鸡翅','e6-name':'大蒜鸡翅','e7-name':'甜辣鸡翅',
+  'e8-name':'杂菜（粉丝）','e9-name':'烤豆腐',
+  'b21-name':'牛肉拌饭','b22-name':'鸡肉拌饭','b23-name':'猪肉拌饭',
+  'b24-name':'炸鸡拌饭','b25-name':'豆腐拌饭','b26-name':'鱿鱼拌饭',
+  'b27-name':'蔬菜拌饭','b28-name':'虾仁拌饭',
+  't30-name':'牛肉铁板','t31-name':'鸡肉铁板','t32-name':'猪肉铁板',
+  't33-name':'五花肉鱿鱼铁板','t34-name':'鱿鱼铁板',
+  'k11-name':'腌牛肉','k12-name':'腌鸡肉','k13-name':'腌猪肉',
+  'k14-name':'特制腌牛肉','k15-name':'特制腌猪颈肉',
+  'k16-name':'肉类拼盘','k17-name':'五花肉','k18-name':'原味牛肉',
+  'k19-name':'烤虾','k20-name':'腌鱿鱼',
+  'c36-name':'泡菜炒饭','c37-name':'海鲜炒饭',
+  'c38-name':'炸酱面','h39-name':'海鲜辣汤面',
+  'g42-name':'饺子汤','g43-name':'豆腐汤','g44-name':'牛肉汤',
+  'g45-name':'泡菜锅','g46-name':'辣牛肉汤',
+  'h39r-name':'韩式牛肉火锅','h40-name':'芝士鸡肉火锅',
+  'h41-name':'乌冬鸡肉芝士火锅','h41-note':'仅限2人份',
+  'des1-name':'호떡（韩式煎饼）','des2-name':'冰淇淋麻薯（2个）',
+  'des3-name':'芝士蛋糕','des4-name':'韩式麻薯（5个）','des5-name':'巧克力熔岩蛋糕',
+  'sub-vins':'葡萄酒','sub-alcools':'韩国酒','sub-aperitifs':'餐前酒',
+  'sub-coreennes':'韩国甜饮','sub-thes':'茶饮','sub-sodas':'汽水和水','sub-cafes':'咖啡',
+  'w-verre':'杯','w-gverre':'大杯','w-demi':'半瓶','w-bout':'整瓶',
+  'biere-name':'卡斯啤酒',
+  'dr-jujube':'大枣汁','dr-kaki':'柿子肉桂汁','dr-raisin':'葡萄饮料',
+  'dr-the-vert':'绿茶','dr-the-jasmin':'茉莉花茶','dr-gingembre':'生姜茶',
+  'dr-yuzu':'柚子茶','dr-salomon':'黄精茶',
+  'dr-orange':'橙汁','dr-pomme':'苹果汁',
+  'dr-cafe':'咖啡 / 低咖啡因','dr-allonge':'美式咖啡',
+  'footer':'✦ \u00A0 感谢您的光临 \u00A0·\u00A0 감사합니다 \u00A0 ✦',
+  'badge-midi':'午餐套餐供应中','badge-soir':'晚餐套餐供应中',
+  'badge-weekend':'周末套餐供应中','badge-attente':'晚餐从18:00开始','badge-ferme':'即将开业',
+});
+
+// CORÉEN
+T.ko = Object.assign({}, T.fr, {
+  'header-title':'메뉴',
+  'nav-menus':'세트메뉴','nav-entrees':'에피타이저','nav-plaque':'철판요리',
+  'nav-riz':'볶음밥','nav-nouilles':'면류','nav-soupes':'국물요리',
+  'nav-ragouts':'전골','nav-desserts':'디저트','nav-boissons':'음료',
+  'nav-bbq':'한국식 바비큐',
+  'sec-menus':'세트메뉴',
+  'midi-title':'점심 세트','midi-sub':'월~금 · 11시–15시',
+  'midi-desc':'비빔밥 또는 철판요리 · 에피타이저 선택 · 디저트 선택',
+  'label-entree':'에피타이저 선택','label-entrees':'에피타이저 선택',
+  'label-plat':'메인 선택','label-dessert':'디저트 선택',
+  'm-salade':'샐러드','m-galette-haricot':'녹두전',
+  'm-mandoo':'군만두','m-mandoo-note':'닭고기 또는 야채 · 3개',
+  'm-ailes':'닭날개','m-ailes-note':'양념, 매운 맛 또는 오리지날 · 3개',
+  'boeuf':'소고기','poulet':'닭고기','porc':'돼지고기','poulet-frit':'닭튀김',
+  'tofu':'두부','seiche':'오징어','legumes':'야채','crevettes':'새우','calamar':'오징어',
+  'poitrine-seiche':'삼겹살 & 오징어',
+  'bibimbap-note':'모두 계란과 함께 제공','banchan-note':'밥과 반찬 포함',
+  'd-litchi':'리치 과일','d-the-vert':'녹차','d-the-jasmin':'자스민차',
+  'soir-title':'저녁 & 주말 세트','soir-sub':'매일 · 18시–23시',
+  'soir-2e':'전채 2가지 + 메인 1가지','soir-3e':'전채 3가지 + 메인 1가지',
+  's-raviolis':'군만두 3개','s-soupe-poireau':'부추 매운 소고기 국',
+  's-tofu':'두부구이 2개','s-galette':'빈대떡 2개',
+  's-ailes':'닭날개 2개','s-vermicelles':'고구마 당면',
+  'veg':'채식',
+  'g-raviolis':'만두국','g-tofu':'순두부찌개','g-kimchi':'김치찌개','g-boeuf-epice':'육개장',
+  'soir-info':'모든 요리는 밥과 반찬이 함께 제공됩니다. 추가 4€: 작은 전채, 밥 또는 반찬. 계란 추가: 2€',
+  'bibimbap-sub':'계란 1개와 반찬 4종 포함',
+  'riz-banchan-sub':'밥과 반찬 4종 포함','banchan-4-sub':'반찬 4종 포함',
+  'ragout-sub':'1인당 밥과 반찬 4종 포함',
+  '1pers':'1인분','2pers':'2인분',
+  'e1-name':'치즈 떡볶이','e2-name':'김치 치즈전','e3-name':'파전',
+  'e4-name':'군만두','mandoo-note':'선택: 닭고기 또는 야채',
+  'e5-name':'오리지날 닭날개','e6-name':'마늘 닭날개','e7-name':'양념 닭날개',
+  'e8-name':'잡채','e9-name':'두부구이',
+  'b21-name':'소고기 비빔밥','b22-name':'닭고기 비빔밥','b23-name':'돼지고기 비빔밥',
+  'b24-name':'닭튀김 비빔밥','b25-name':'두부 비빔밥','b26-name':'오징어 비빔밥',
+  'b27-name':'야채 비빔밥','b28-name':'새우 비빔밥',
+  't30-name':'소고기 철판','t31-name':'닭불백','t32-name':'돼지불백',
+  't33-name':'오징어 삼겹살 철판','t34-name':'오징어 철판',
+  'k11-name':'소고기 구이','k12-name':'닭고기 구이','k13-name':'돼지고기 구이',
+  'k14-name':'특 소고기 구이','k15-name':'특 돼지목살',
+  'k16-name':'모듬구이','k17-name':'삼겹살','k18-name':'소고기 생구이',
+  'k19-name':'새우구이','k20-name':'오징어구이',
+  'c36-name':'김치볶음밥','c37-name':'해물볶음밥',
+  'c38-name':'짜장면','h39-name':'해물짬뽕',
+  'g42-name':'만두국','g43-name':'순두부찌개','g44-name':'뚝불',
+  'g45-name':'김치찌개','g46-name':'육개장',
+  'h39r-name':'소고기 전골','h40-name':'치즈 닭 전골',
+  'h41-name':'우동 치즈 닭불고기 전골','h41-note':'2인분 전용',
+  'des1-name':'호떡','des2-name':'모찌 아이스크림 (2개)',
+  'des3-name':'치즈케이크','des4-name':'한국식 모찌 (5개)','des5-name':'초코 퐁당',
+  'sub-vins':'와인','sub-alcools':'한국 술','sub-aperitifs':'아페리티프',
+  'sub-coreennes':'한국 음료','sub-thes':'차류','sub-sodas':'음료수 & 물','sub-cafes':'커피',
+  'w-verre':'잔','w-gverre':'큰 잔','w-demi':'반병','w-bout':'한 병',
+  'biere-name':'카스 맥주',
+  'dr-jujube':'대추 음료','dr-kaki':'수정과','dr-raisin':'포도 음료',
+  'dr-the-vert':'녹차','dr-the-jasmin':'자스민차','dr-gingembre':'생강차',
+  'dr-yuzu':'유자차','dr-salomon':'둥굴레차',
+  'dr-orange':'오렌지 주스','dr-pomme':'사과 주스',
+  'dr-cafe':'커피 / 디카페인','dr-allonge':'아메리카노',
+  'footer':'✦ \u00A0 방문해 주셔서 감사합니다 \u00A0·\u00A0 감사합니다 \u00A0 ✦',
+  'badge-midi':'점심 세트 운영 중','badge-soir':'저녁 세트 운영 중',
+  'badge-weekend':'주말 세트 운영 중','badge-attente':'저녁 영업은 18시부터','badge-ferme':'곧 영업 시작',
+});
+
+// ══════════════════════════════════════════
+// MOTEUR I18N
+// ══════════════════════════════════════════
+let currentLang = 'fr';
+
+function applyLang(lang) {
+  currentLang = lang;
+  const dict = T[lang];
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key]) el.textContent = dict[key];
+  });
+  // Switcher actif
+  document.querySelectorAll('.lang-switch-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent.trim() === {fr:'FR',en:'EN',zh:'中文',ko:'한국어'}[lang]);
+  });
+  render();
+}
+
+function setLang(lang) {
+  document.getElementById('lang-overlay').style.display = 'none';
+  applyLang(lang);
+}
+
+// ══════════════════════════════════════════
+// NAV & SCROLL
+// ══════════════════════════════════════════
+function goTo(id, btn) {
+  document.getElementById(id).scrollIntoView({ behavior:'smooth', block:'start' });
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+}
+
+const ids = ['menus','entrees','bibimbap','plaque','bbq','riz','nouilles','soupes','ragouts','desserts','boissons'];
+window.addEventListener('scroll', () => {
+  let current = '';
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && window.scrollY >= el.offsetTop - 130) current = id;
+  });
+  document.querySelectorAll('.nav-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', ids[i] === current);
+  });
+});
+
+document.querySelectorAll('.item-photo, .drink-photo').forEach(img => {
+  img.onerror = function() { this.style.display='none'; };
+});
+
+// ══════════════════════════════════════════
+// TIMESTAMP + LOGIQUE HORAIRE
+// ══════════════════════════════════════════
+function getStatus() {
+  const now = new Date();
+  const day = now.getDay();
+  const h = now.getHours(), m = now.getMinutes();
+  const t = h * 60 + m;
+  const wday = day >= 1 && day <= 5;
+  const weekend = day === 0 || day === 6;
+  const midi = wday && t >= 11*60 && t < 15*60;
+  const soirSemaine = wday && t >= 18*60 && t < 23*60;
+  const soirWeekend = weekend && t >= 11*60 && t < 23*60;
+  const jours = {
+    fr:['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'],
+    en:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+    zh:['星期日','星期一','星期二','星期三','星期四','星期五','星期六'],
+    ko:['일요일','월요일','화요일','수요일','목요일','금요일','토요일'],
+  };
+  const jourStr = jours[currentLang][day];
+  const ts = jourStr + ' · ' + String(h).padStart(2,'0') + 'h' + String(m).padStart(2,'0');
+  let active = null, icon = '', badgeKey = '', color = '';
+  if (midi)            { active='midi'; icon='🍱'; badgeKey='badge-midi'; color='var(--brown-dark)'; }
+  else if (soirSemaine){ active='soir'; icon='🌙'; badgeKey='badge-soir'; color='var(--bordeaux)'; }
+  else if (soirWeekend){ active='soir'; icon='🌟'; badgeKey='badge-weekend'; color='var(--bordeaux)'; }
+  else if (wday && t >= 15*60 && t < 18*60){ icon='⏳'; badgeKey='badge-attente'; color='var(--brown)'; }
+  else                 { icon='⏳'; badgeKey='badge-ferme'; color='var(--brown)'; }
+  return { ts, active, icon, badgeKey, color };
+}
+
+function render() {
+  const { ts, active, icon, badgeKey, color } = getStatus();
+  document.getElementById('timestamp').textContent = ts;
+  const badge = document.getElementById('menu-badge');
+  badge.innerHTML = icon + ' ' + (T[currentLang][badgeKey] || '');
+  badge.style.background = color;
+  const midi = document.getElementById('menu-midi-card');
+  const soir = document.getElementById('menu-soir-card');
+  if (active === 'midi') {
+    midi.style.display = 'block';
+    soir.style.display = 'none';
+  } else if (active === 'soir') {
+    soir.style.display = 'block';
+    midi.style.display = 'none';
+  } else {
+    midi.style.display = 'block';
+    soir.style.display = 'block';
+  }
+}
+
+render();
+setInterval(render, 30000);
+</script>
+</body>
+</html>
